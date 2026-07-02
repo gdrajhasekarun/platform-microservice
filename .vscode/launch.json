@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "ServiceCatalogApplication",
+      "request": "launch",
+      "mainClass": "com.learning.catalog.ServiceCatalogApplication",
+      "projectName": "service-catalog"
+    },
+    {
+      "type": "java",
+      "name": "ApiGatewayApplication",
+      "request": "launch",
+      "mainClass": "com.learning.gateway.ApiGatewayApplication",
+      "projectName": "api-gateway"
+    }
+  ]
+}

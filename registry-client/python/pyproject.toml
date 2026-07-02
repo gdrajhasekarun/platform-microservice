@@ -1,0 +1,20 @@
+[project]
+name = "caas-platform-registry-client"
+version = "3.0.0"
+description = "Self-registration client for the CaaS service catalog (register / heartbeat / deregister)."
+requires-python = ">=3.9"
+dependencies = [
+    "httpx>=0.24",
+]
+
+[project.optional-dependencies]
+fastapi = [
+    "fastapi>=0.100",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["registry_client*"]

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Service Catalog</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, Arial, sans-serif; margin: 2rem; background: #f7f8fa; color: #1a1a1a; }
+  h1 { font-size: 1.4rem; margin-bottom: 0.25rem; }
+  #meta { color: #666; font-size: 0.85rem; margin-bottom: 1rem; }
+  table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  th, td { text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+  th { background: #fafafa; font-weight: 600; }
+  tr:hover { background: #f5f9ff; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; background: #e6f4ea; color: #1e7e34; }
+  .empty { text-align: center; color: #888; padding: 2rem; }
+  code { background: #f0f0f0; padding: 0.1rem 0.3rem; border-radius: 3px; }
+</style>
+</head>
+<body>
+  <h1>Service Catalog</h1>
+  <div id="meta">Auto-refreshing every 5s from <code>/services</code></div>
+  <table>
+    <thead>
+      <tr>
+        <th>Service</th>
+        <th>Host:Port</th>
+        <th>Health URL</th>
+        <th>Last Heartbeat</th>
+        <th>Metadata</th>
+        <th>Instance ID</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+<script>
+const POLL_INTERVAL_MS = 5000;
+
+function timeAgo(iso) {
+  const seconds = Math.round((Date.now() - new Date(iso).getTime()) / 1000);
+  if (seconds < 60) return seconds + "s ago";
+  return Math.round(seconds / 60) + "m ago";
+}
+
+function renderMetadata(metadata) {
+  if (!metadata || Object.keys(metadata).length === 0) return "&mdash;";
+  return Object.entries(metadata).map(([k, v]) => `${k}=${v}`).join(", ");
+}
+
+async function refresh() {
+  const rowsEl = document.getElementById("rows");
+  try {
+    const response = await fetch("/services");
+    if (!response.ok) throw new Error("status " + response.status);
+    const instances = await response.json();
+
+    if (instances.length === 0) {
+      rowsEl.innerHTML = `<tr><td colspan="6" class="empty">No services registered</td></tr>`;
+      return;
+    }
+
+    rowsEl.innerHTML = instances
+      .sort((a, b) => a.name.localeCompare(b.name) || a.host.localeCompare(b.host))
+      .map(i => `
+        <tr>
+          <td><span class="badge">${i.name}</span></td>
+          <td>${i.host}:${i.port}</td>
+          <td>${i.healthUrl || "&mdash;"}</td>
+          <td>${timeAgo(i.lastHeartbeat)}</td>
+          <td>${renderMetadata(i.metadata)}</td>
+          <td><code>${i.id}</code></td>
+        </tr>
+      `).join("");
+  } catch (err) {
+    rowsEl.innerHTML = `<tr><td colspan="6" class="empty">Could not reach catalog: ${err.message}</td></tr>`;
+  }
+}
+
+refresh();
+setInterval(refresh, POLL_INTERVAL_MS);
+</script>
+</body>
+</html>
