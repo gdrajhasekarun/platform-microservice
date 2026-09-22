@@ -1,4 +1,4 @@
-# Platform Microservice (CaaS Discovery Platform)
+# Platform Microservice (API Discovery Platform)
 
 A homegrown service discovery + API gateway platform:
 
@@ -96,7 +96,11 @@ npm run build
 ```typescript
 import { RegistryClient } from "@learning/registry-client";
 
-const client = new RegistryClient({ catalogUrl: "http://localhost:8761", name: "my-service", port: 3000 });
+const client = new RegistryClient({
+  catalogUrl: "http://localhost:8761",
+  name: "my-service",
+  port: 3000,
+});
 client.start();
 ```
 
